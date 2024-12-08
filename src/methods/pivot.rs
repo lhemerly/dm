@@ -145,7 +145,7 @@ pub fn pivot(
         // Create a temporary HashMap<&str, String>
         let temp_row_values: HashMap<&str, String> = row_values.iter().map(|(k, v)| (k.as_str(), v.clone())).collect();
 
-        out.push_row_str(&temp_row_values);
+        out.push_row(&temp_row_values);
     }
 
     out

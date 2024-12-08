@@ -39,7 +39,7 @@ fn main() {
     ];
 
     for row in rows {
-        table.push_row_str(&row);
+        table.push_row(&row);
     }
 
     // Create pivot table
@@ -56,4 +56,47 @@ fn main() {
     println!("{:?}", table);
     println!("\nPivoted table:");
     println!("{:?}", pivoted);
+
+    let mut table2 = Table::new();
+
+    table2.add_column(Box::new(StringColumn::new("region")));
+    table2.add_column(Box::new(StringColumn::new("product")));
+    table2.add_column(Box::new(FloatColumn::new("costs")));
+
+    let rows2 = vec![
+        HashMap::from([
+            ("region", "North".to_string()),
+            ("product", "A".to_string()),
+            ("costs", "5".to_string()),
+        ]),
+        HashMap::from([
+            ("region", "North".to_string()),
+            ("product", "B".to_string()),
+            ("costs", "10".to_string()),
+        ]),
+        HashMap::from([
+            ("region", "South".to_string()),
+            ("product", "A".to_string()),
+            ("costs", "2".to_string()),
+        ]),
+        HashMap::from([
+            ("region", "South".to_string()),
+            ("product", "B".to_string()),
+            ("costs", "5".to_string()),
+        ]),
+    ];
+
+    for row in rows2 {
+        table2.push_row(&row);
+    }
+
+    // columns to join on
+    let on = vec!["region", "product"];
+
+    // perform inner join
+    let joined = dm::methods::join::join(&table, &table2, &on);
+
+    println!("\nJoined table:");
+    println!("{:?}", joined);
+
 }

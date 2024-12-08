@@ -1,4 +1,5 @@
 use crate::columns::column_trait::ColumnTrait;
+use crate::columns::column_trait::ColumnType;
 
 #[derive(Clone)]
 pub struct IntColumn {
@@ -41,5 +42,9 @@ impl ColumnTrait for IntColumn {
 
     fn clone_box(&self) -> Box<dyn ColumnTrait> {
         Box::new(self.clone())
+    }
+
+    fn get_type(&self) -> ColumnType {
+        ColumnType::Int
     }
 }

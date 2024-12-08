@@ -3,6 +3,7 @@ use std::fmt::Debug;
 use crate::columns::column_trait::ColumnTrait;
 use crate::columns::string_column::StringColumn;
 use crate::columns::float_column::FloatColumn;
+use crate::columns::column_trait::ColumnType;
 
 pub struct Table {
     pub columns: Vec<Box<dyn ColumnTrait>>,
@@ -46,17 +47,33 @@ impl Table {
         }
     }
 
-    pub fn push_row_str(&mut self, values: &HashMap<&str, String>) {
+    pub fn get_rows(&self) -> Vec<HashMap<&str, String>> {
+        let mut rows = Vec::new();
+        for i in 0..self.len() {
+            let mut row = HashMap::new();
+            for c in &self.columns {
+                row.insert(c.name(), c.get_as_string(i));
+            }
+            rows.push(row);
+        }
+        rows
+    }
+
+    pub fn push_row(&mut self, values: &HashMap<&str, String>) {
         // values: column_name -> value as str
         // ensure all columns are present
-        for c in &self.columns {
+        for c in self.columns.iter_mut() {
             let col_name = c.name();
             if !values.contains_key(col_name) {
-                panic!("Missing value for column {}", col_name);
+                // Match c type and add default value
+                match c.get_type() {
+                    ColumnType::String => c.push_str(""),
+                    ColumnType::Int => c.push_str("0"),
+                    ColumnType::Float => c.push_str("0.0"),
+                }
+            } else {
+                c.push_str(values.get(col_name).unwrap());
             }
-        }
-        for c in self.columns.iter_mut() {
-            c.push_str(values.get(c.name()).unwrap());
         }
     }
 
@@ -65,6 +82,16 @@ impl Table {
         let mut map: HashMap<String, Vec<usize>> = HashMap::new();
         for i in 0..self.len() {
             let key = self.columns[idx].get_as_string(i);
+            map.entry(key).or_default().push(i);
+        }
+        map
+    }
+
+    pub fn create_multi_index(&self, columns: &[&str]) -> HashMap<Vec<String>, Vec<usize>> {
+        let idxs: Vec<usize> = columns.iter().map(|&col| self.get_column_index(col).expect("Index column not found")).collect();
+        let mut map: HashMap<Vec<String>, Vec<usize>> = HashMap::new();
+        for i in 0..self.len() {
+            let key: Vec<String> = idxs.iter().map(|&idx| self.columns[idx].get_as_string(i)).collect();
             map.entry(key).or_default().push(i);
         }
         map
