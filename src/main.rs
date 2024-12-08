@@ -59,31 +59,18 @@ fn main() {
 
     let mut table2 = Table::new();
 
-    table2.add_column(Box::new(StringColumn::new("region")));
     table2.add_column(Box::new(StringColumn::new("product")));
-    table2.add_column(Box::new(FloatColumn::new("costs")));
+    table2.add_column(Box::new(StringColumn::new("description")));
 
     let rows2 = vec![
         HashMap::from([
-            ("region", "North".to_string()),
             ("product", "A".to_string()),
-            ("costs", "5".to_string()),
+            ("description", "Product A".to_string()),
         ]),
         HashMap::from([
-            ("region", "North".to_string()),
             ("product", "B".to_string()),
-            ("costs", "10".to_string()),
-        ]),
-        HashMap::from([
-            ("region", "South".to_string()),
-            ("product", "A".to_string()),
-            ("costs", "2".to_string()),
-        ]),
-        HashMap::from([
-            ("region", "South".to_string()),
-            ("product", "B".to_string()),
-            ("costs", "5".to_string()),
-        ]),
+            ("description", "Product B".to_string()),
+        ])
     ];
 
     for row in rows2 {
@@ -91,10 +78,13 @@ fn main() {
     }
 
     // columns to join on
-    let on = vec!["region", "product"];
+    let on = vec!["product"];
+
+    // type to join
+    let join_type = dm::methods::join::JoinType::Left;
 
     // perform inner join
-    let joined = dm::methods::join::join(&table, &table2, &on);
+    let joined = dm::methods::join::join(&table, &table2, &on, join_type);
 
     println!("\nJoined table:");
     println!("{:?}", joined);
